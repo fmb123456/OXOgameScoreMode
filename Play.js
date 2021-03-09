@@ -1,4 +1,4 @@
-let Player1 = "0.0369003608 0.0559764671 0.7294386995 0.8701294408 1.0970368063 0.4474118099 0.3929972732 0.4789892354 1.4499301512";
+let Player1 = "0.0042466509 0.0195638929 0.7091416232 0.7718535331 1.4247274501 0.0584790536 0.4627202925 0.5608847774 1.6144937918";
 let Player2 = "0.3713930932 0.6460068626 0.7495216064 0.8106097537 1.1584612870 0.5777620002 0.4815393739 0.6827718454 1.3112141286";
 //use "random" to get a random AI
 let dep = 3;
@@ -115,11 +115,13 @@ function p1Check() {
     if (!board.game.finish && board.game.cur_player === 1) {
         stop = true;
         setTimeout(function() {
+            if (board.game.big.state.filter(i => i !== 0).length >= 3 || board.game.history.length >= 40) dep = 4;
+            else dep = 3;
             let idx = p1.best_move(board.game, dep);
             let target = document.querySelector(".g" + idx.join(""));
             board.move(target);
             stop = false;
-        }, 2000);
+        }, 500);
     }
 }
 
@@ -127,11 +129,13 @@ function p2Check() {
     if (!board.game.finish && board.game.cur_player === -1) {
         stop = true;
         setTimeout(function() {
+            if (board.game.big.state.filter(i => i !== 0).length >= 3 || board.game.history.length >= 40) dep = 4;
+            else dep = 3;
             let idx = p2.best_move(board.game, dep);
             let target = document.querySelector(".g" + idx.join(""));
             board.move(target);
             stop = false;
-        }, 2000);
+        }, 500);
     }
 }
 
