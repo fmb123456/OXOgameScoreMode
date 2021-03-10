@@ -59,6 +59,18 @@
     font-size: medium;
 }
 
+#score {
+    position: absolute;
+    height: 150px;
+    width: 400px;
+    bottom: 0;
+    left: 50%;
+    margin: 0 0 -40px -100px;
+    font-size: 7em;
+    font-family: sans-serif;
+    text-shadow: -1px -1px 0 white, 1px -1px white, -1px 1px 0 white, 1px 1px 0 white, 2px 2px 2px black;
+}
+
 #options {
     position: absolute;
     left: 75%;
@@ -137,18 +149,4 @@ table {
 
 .grid.Xavl:hover {
     background-color: rgba(0, 0, 255, 0.5);
-}
-
-.small.O {
-    height: 100%;
-    width: 100%;
-    border: 3px solid red;
-    background-color: pink;
-}
-
-.small.X {
-    height: 100%;
-    width: 100%;
-    border: 3px solid blue;
-    background-color: lightskyblue;
 }
