@@ -1,7 +1,9 @@
-let Player1 = "0.0042466509 0.0195638929 0.7091416232 0.7718535331 1.4247274501 0.0584790536 0.4627202925 0.5608847774 1.6144937918";
-let Player2 = "0.3713930932 0.6460068626 0.7495216064 0.8106097537 1.1584612870 0.5777620002 0.4815393739 0.6827718454 1.3112141286";
+let Player1 = "0.2312015902 0.6013683240 0.7946778042 0.3506082508 0.2991579160";
+let Player2 = "random";
 //use "random" to get a random AI
-let dep = 3;
+const INITDEP = 3;
+const EXTRADEP = 4;
+let dep;
 let img = [
     "oil1.jpg", //https://www.pixiv.net/artworks/80520328
     "oil2.jpg", //https://www.pixiv.net/artworks/18231910
@@ -48,18 +50,19 @@ class Board {
         else
             p = "X";
         target.classList.add(p);
-        if (this.game.move(idx))
-            target.closest(".small").classList.add(p);
+        this.game.move(idx);
         this.addHistory(idx, p);
         this.updateScreen();
     }
     updateScreen() {
+        let score = document.querySelector("#score");
+        score.innerHTML = this.game.score(1) + " : " + this.game.score(-1);
         for (let grid of document.querySelectorAll(".Oavl"))
             grid.classList.remove("Oavl");
         for (let grid of document.querySelectorAll(".Xavl"))
             grid.classList.remove("Xavl");
-        var p = this.game.cur_player === 1 ? "O" : "X";
-        var avl = [...this.game.valid_moves()];
+        var p = this.game.curPlayer === 1 ? "O" : "X";
+        var avl = [...this.game.validMoves()];
         if (avl.length) {
             for (let idx of avl)
                 document.querySelector(".g" + idx.join("")).classList.add(p + "avl");
@@ -87,11 +90,9 @@ class Board {
         for (let i = 0; i < this.undoTimes; ++i) {
             if (!this.game.history.length) break;
             var idx = this.game.history[this.game.history.length - 1];
-            var big_change = this.game.undo();
-            var p = this.game.cur_player === 1 ? "O" : "X";
+            this.game.undo();
+            var p = this.game.curPlayer === 1 ? "O" : "X";
             document.querySelector(".g" + idx.join("")).classList.remove(p);
-            if (big_change)
-                document.querySelector(".s" + idx[0]).classList.remove(p);
             var history = [...document.querySelectorAll("#history>p")];
             var del = history[history.length - 1];
             del.parentNode.removeChild(del);
@@ -112,12 +113,12 @@ let bg = document.querySelector(".bg");
 bg.style.backgroundImage = `url(images/${img[Math.floor(Math.random() * img.length)]})`;
 
 function p1Check() {
-    if (!board.game.finish && board.game.cur_player === 1) {
+    if (!board.game.finish && board.game.curPlayer === 1) {
         stop = true;
         setTimeout(function() {
-            if (board.game.big.state.filter(i => i !== 0).length >= 3 || board.game.history.length >= 40) dep = 4;
-            else dep = 3;
-            let idx = p1.best_move(board.game, dep);
+            if (board.game.history.length >= 60) dep = EXTRADEP;
+            else dep = INITDEP;
+            let idx = p1.bestMove(board.game, dep);
             let target = document.querySelector(".g" + idx.join(""));
             board.move(target);
             stop = false;
@@ -126,12 +127,12 @@ function p1Check() {
 }
 
 function p2Check() {
-    if (!board.game.finish && board.game.cur_player === -1) {
+    if (!board.game.finish && board.game.curPlayer === -1) {
         stop = true;
         setTimeout(function() {
-            if (board.game.big.state.filter(i => i !== 0).length >= 3 || board.game.history.length >= 40) dep = 4;
-            else dep = 3;
-            let idx = p2.best_move(board.game, dep);
+            if (board.game.history.length >= 60) dep = EXTRADEP;
+            else dep = INITDEP;
+            let idx = p2.bestMove(board.game, dep);
             let target = document.querySelector(".g" + idx.join(""));
             board.move(target);
             stop = false;
@@ -140,10 +141,7 @@ function p2Check() {
 }
 
 function setEventListener(useP1 = false, useP2 = true) {
-    if (useP1 === true && useP2 === true) {
-        alert("幹嘛? 不給, 選別的");
-        return;
-    }
+    board.undoTimes = useP1 & useP2 ? 0 : useP1 | useP2 ? 2 : 1;
     document.removeEventListener("nextTurn", p1Check);
     document.removeEventListener("nextTurn", p2Check);
     if (useP1)
@@ -153,12 +151,15 @@ function setEventListener(useP1 = false, useP2 = true) {
     board.reset();
 }
 document.querySelector("#undo").onclick = function(e) { board.undo(); };
-document.querySelector("#reset").onclick = function(e) { board.reset(); };
+document.querySelector("#reset").onclick = function(e) {
+    board.reset();
+    bg.style.backgroundImage = `url(images/${img[Math.floor(Math.random() * img.length)]})`;
+};
 document.querySelector("select").onchange = function(e) {
     var choice = e.target.value;
-    if (choice === "pvp") setEventListener(false, false), board.undoTimes = 1;
-    else if (choice === "pvc") setEventListener(false, true), board.undoTimes = 2;
-    else if (choice === "cvp") setEventListener(true, false), board.undoTimes = 2;
+    if (choice === "pvp") setEventListener(false, false);
+    else if (choice === "pvc") setEventListener(false, true);
+    else if (choice === "cvp") setEventListener(true, false);
     else if (choice === "cvc") setEventListener(true, true);
 };
 setEventListener();
