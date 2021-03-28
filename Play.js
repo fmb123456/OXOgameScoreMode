@@ -140,7 +140,7 @@ function p2Check() {
     }
 }
 
-function setEventListener(useP1 = false, useP2 = true) {
+function setEventListener(useP1 = true, useP2 = false) {
     board.undoTimes = useP1 & useP2 ? 0 : useP1 | useP2 ? 2 : 1;
     document.removeEventListener("nextTurn", p1Check);
     document.removeEventListener("nextTurn", p2Check);
